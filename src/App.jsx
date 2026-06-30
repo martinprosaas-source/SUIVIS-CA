@@ -465,7 +465,7 @@ const s = {
     letterSpacing: '0.6px', marginBottom: '8px', textTransform: 'uppercase',
   },
   heroAmount: {
-    fontSize: 'var(--hero-fs)', fontWeight: '800', letterSpacing: '-1.5px',
+    fontSize: 'var(--hero-fs)', fontWeight: '800', letterSpacing: '0px',
     fontVariantNumeric: 'tabular-nums', lineHeight: 1.1,
     color: 'var(--text-1)', marginBottom: '10px',
   },
