@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { Plus, TrendingUp, TrendingDown, Sun, Moon, Trash2 } from 'lucide-react';
+import { Plus, TrendingUp, TrendingDown, Sun, Moon, Trash2, ChevronDown } from 'lucide-react';
 import ArcGauge from './components/ArcGauge';
 import RevenueChart from './components/RevenueChart';
 import AddEntryModal from './components/AddEntryModal';
@@ -7,7 +7,7 @@ import EditableGoal from './components/EditableGoal';
 import { useTheme } from './context/ThemeContext';
 import { SUPABASE_MODE } from './lib/supabase';
 import {
-  loadEntries, addEntry as persistEntry,
+  loadEntries, addEntry as persistEntry, deleteEntry as persistDeleteEntry,
   loadGoals, saveGoals,
   isInitialized, markInitialized, saveEntries,
   clearAllEntries,
@@ -52,6 +52,7 @@ export default function App() {
   const [showModal, setShowModal] = useState(false);
   const [loading, setLoading] = useState(true);
   const [confirmReset, setConfirmReset] = useState(false);
+  const [expandedMonth, setExpandedMonth] = useState(null);
 
   useEffect(() => {
     async function init() {
@@ -76,12 +77,20 @@ export default function App() {
   }, []);
 
   async function addEntry(entry) {
-    // Optimistic update
     setEntries(prev => [entry, ...prev].sort((a, b) => new Date(b.date) - new Date(a.date)));
     try {
       await persistEntry(entry);
     } catch (err) {
       console.error('Erreur sauvegarde :', err);
+    }
+  }
+
+  async function removeEntry(id) {
+    setEntries(prev => prev.filter(e => e.id !== id));
+    try {
+      await persistDeleteEntry(id);
+    } catch (err) {
+      console.error('Erreur suppression :', err);
     }
   }
 
@@ -152,6 +161,18 @@ export default function App() {
 
   const chartData = monthlyData;
   const chartColors = isDark ? DARK_COLORS : LIGHT_COLORS;
+
+  const entriesByMonth = useMemo(() => {
+    const map = {};
+    entries.forEach(e => {
+      const d = new Date(e.date);
+      const key = `${d.getFullYear()}-${d.getMonth()}`;
+      if (!map[key]) map[key] = [];
+      map[key].push(e);
+    });
+    Object.values(map).forEach(arr => arr.sort((a, b) => new Date(b.date) - new Date(a.date)));
+    return map;
+  }, [entries]);
 
   const progressColor = (pct) =>
     pct >= 80 ? 'var(--green)' : pct >= 40 ? 'var(--warning)' : 'var(--red)';
@@ -281,41 +302,86 @@ export default function App() {
           </div>
           <div className="month-list-scroll">
             {[...monthList].reverse().map(m => {
+              const key = `${m.year}-${m.month}`;
               const evo = m.evolution;
               const isUp = evo !== null && evo >= 0;
               const hasEvo = evo !== null && m.ca > 0;
+              const monthEntries = entriesByMonth[key] || [];
+              const isExpanded = expandedMonth === key;
+
               return (
-                <div key={`${m.year}-${m.month}`} style={{
-                  ...s.monthRow,
-                  background: m.isCurrentMonth ? 'var(--green-dim)' : 'transparent',
-                  borderLeft: m.isCurrentMonth ? '2px solid var(--green)' : '2px solid transparent',
-                }}>
-                  <div style={s.monthName}>
-                    <span style={{
-                      color: m.isCurrentMonth ? 'var(--green)' : 'var(--text-2)',
-                      fontWeight: m.isCurrentMonth ? 600 : 400,
+                <div key={key}>
+                  <div
+                    style={{
+                      ...s.monthRow,
+                      background: m.isCurrentMonth ? 'var(--green-dim)' : 'transparent',
+                      borderLeft: m.isCurrentMonth ? '2px solid var(--green)' : '2px solid transparent',
+                      cursor: monthEntries.length > 0 ? 'pointer' : 'default',
+                    }}
+                    onClick={() => monthEntries.length > 0 && setExpandedMonth(isExpanded ? null : key)}
+                  >
+                    <div style={s.monthName}>
+                      <span style={{
+                        color: m.isCurrentMonth ? 'var(--green)' : 'var(--text-2)',
+                        fontWeight: m.isCurrentMonth ? 600 : 400,
+                      }}>
+                        {getMonthLabel(m.year, m.month, true)}
+                      </span>
+                      <span style={s.monthYear}>{m.year}</span>
+                      {monthEntries.length > 0 && (
+                        <span style={s.entryCount}>{monthEntries.length}</span>
+                      )}
+                    </div>
+                    <div style={s.monthCA}>
+                      {m.ca > 0
+                        ? formatCurrency(m.ca)
+                        : <span style={{ color: 'var(--text-5)' }}>—</span>
+                      }
+                    </div>
+                    <div style={{
+                      ...s.monthEvo,
+                      color: !hasEvo ? 'var(--text-5)' : isUp ? 'var(--green)' : 'var(--red)',
                     }}>
-                      {getMonthLabel(m.year, m.month, true)}
-                    </span>
-                    <span style={s.monthYear}>{m.year}</span>
+                      {hasEvo ? (
+                        <>
+                          {isUp ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
+                          <span>{formatPercent(evo)}</span>
+                        </>
+                      ) : <span>—</span>}
+                    </div>
+                    {monthEntries.length > 0 && (
+                      <ChevronDown size={14} style={{
+                        color: 'var(--text-4)',
+                        transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
+                        transition: 'transform 0.2s ease',
+                        flexShrink: 0,
+                        marginLeft: '2px',
+                      }} />
+                    )}
                   </div>
-                  <div style={s.monthCA}>
-                    {m.ca > 0
-                      ? formatCurrency(m.ca)
-                      : <span style={{ color: 'var(--text-5)' }}>—</span>
-                    }
-                  </div>
-                  <div style={{
-                    ...s.monthEvo,
-                    color: !hasEvo ? 'var(--text-5)' : isUp ? 'var(--green)' : 'var(--red)',
-                  }}>
-                    {hasEvo ? (
-                      <>
-                        {isUp ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
-                        <span>{formatPercent(evo)}</span>
-                      </>
-                    ) : <span>—</span>}
-                  </div>
+
+                  {isExpanded && (
+                    <div style={s.entriesContainer}>
+                      {monthEntries.map(entry => (
+                        <div key={entry.id} style={s.entryRow}>
+                          <div style={s.entryInfo}>
+                            <span style={s.entryNote}>{entry.note}</span>
+                            <span style={s.entryDate}>
+                              {new Date(entry.date + 'T12:00:00').toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}
+                            </span>
+                          </div>
+                          <span style={s.entryAmount}>{formatCurrency(entry.amount)}</span>
+                          <button
+                            style={s.deleteEntryBtn}
+                            onClick={e => { e.stopPropagation(); removeEntry(entry.id); }}
+                            title="Supprimer ce paiement"
+                          >
+                            <Trash2 size={13} />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               );
             })}
@@ -461,6 +527,35 @@ const s = {
   monthYear: { fontSize: '11px', color: 'var(--text-4)' },
   monthCA: { fontVariantNumeric: 'tabular-nums', fontWeight: '600', fontSize: '13px', color: 'var(--text-1)', flexShrink: 0 },
   monthEvo: { display: 'flex', alignItems: 'center', gap: '3px', fontSize: '12px', fontWeight: '500', minWidth: '62px', justifyContent: 'flex-end', flexShrink: 0 },
+  entryCount: {
+    fontSize: '10px', fontWeight: '600', color: 'var(--text-4)',
+    background: 'var(--text-5)', borderRadius: '4px', padding: '1px 5px',
+  },
+  entriesContainer: {
+    marginLeft: '14px', marginBottom: '2px',
+    borderLeft: '1px solid var(--border)', paddingLeft: '12px',
+  },
+  entryRow: {
+    display: 'flex', alignItems: 'center',
+    padding: '8px 4px 8px 0', gap: '8px',
+    borderBottom: '1px solid var(--month-sep)',
+  },
+  entryInfo: { flex: '1 1 0', display: 'flex', flexDirection: 'column', gap: '2px', minWidth: 0 },
+  entryNote: {
+    fontSize: '12px', color: 'var(--text-1)', fontWeight: '500',
+    overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+  },
+  entryDate: { fontSize: '11px', color: 'var(--text-4)' },
+  entryAmount: {
+    fontSize: '13px', fontWeight: '600', color: 'var(--text-1)',
+    fontVariantNumeric: 'tabular-nums', flexShrink: 0,
+  },
+  deleteEntryBtn: {
+    width: '28px', height: '28px', flexShrink: 0,
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+    color: 'var(--text-4)', background: 'none', border: 'none',
+    borderRadius: '6px', cursor: 'pointer',
+  },
   loader: {
     display: 'flex', justifyContent: 'center', alignItems: 'center', height: 'calc(100vh - 58px)',
   },
