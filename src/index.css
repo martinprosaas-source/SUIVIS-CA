@@ -1,0 +1,222 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* ─── Design tokens ─────────────────────────────────────── */
+:root {
+  /* Color tokens — dark theme */
+  --bg: #08090A;
+  --card: #111214;
+  --border: rgba(255, 255, 255, 0.06);
+  --header-bg: rgba(8, 9, 10, 0.92);
+  --text-1: #FFFFFF;
+  --text-2: rgba(255, 255, 255, 0.58);
+  --text-3: rgba(255, 255, 255, 0.38);
+  --text-4: rgba(255, 255, 255, 0.22);
+  --text-5: rgba(255, 255, 255, 0.12);
+  --green: #00D4AA;
+  --green-dim: rgba(0, 212, 170, 0.05);
+  --red: #FF4D6A;
+  --warning: #FFB547;
+  --track: rgba(255, 255, 255, 0.06);
+  --card-shadow: none;
+  --input-bg: #0D0E0F;
+  --input-border: rgba(255, 255, 255, 0.08);
+  --modal-overlay: rgba(0, 0, 0, 0.75);
+  --modal-card: #161719;
+  --modal-border: rgba(255, 255, 255, 0.08);
+  --chart-goal: rgba(255, 255, 255, 0.2);
+  --month-sep: rgba(255, 255, 255, 0.03);
+  --add-btn-text: #08090A;
+
+  /* Spacing & size tokens — mobile first */
+  --pad-x: 14px;
+  --hero-pad: 18px 16px 16px;
+  --card-pad: 16px 14px 10px;
+  --kpi-pad: 14px 12px;
+  --hero-fs: 28px;
+  --header-h: 54px;
+}
+
+/* Light theme overrides */
+:root.light {
+  --bg: #EEF0F4;
+  --card: #FFFFFF;
+  --border: rgba(0, 0, 0, 0.07);
+  --header-bg: rgba(238, 240, 244, 0.92);
+  --text-1: #0A0B0D;
+  --text-2: rgba(10, 11, 13, 0.58);
+  --text-3: rgba(10, 11, 13, 0.40);
+  --text-4: rgba(10, 11, 13, 0.25);
+  --text-5: rgba(10, 11, 13, 0.13);
+  --green: #00A884;
+  --green-dim: rgba(0, 168, 132, 0.07);
+  --red: #E8334A;
+  --warning: #E69900;
+  --track: rgba(0, 0, 0, 0.08);
+  --card-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 8px 28px rgba(0, 0, 0, 0.06);
+  --input-bg: #F4F5F7;
+  --input-border: rgba(0, 0, 0, 0.09);
+  --modal-overlay: rgba(0, 0, 0, 0.4);
+  --modal-card: #FFFFFF;
+  --modal-border: rgba(0, 0, 0, 0.08);
+  --chart-goal: rgba(10, 11, 13, 0.18);
+  --month-sep: rgba(0, 0, 0, 0.04);
+  --add-btn-text: #FFFFFF;
+}
+
+/* ─── Responsive spacing tokens ────────────────────────── */
+@media (min-width: 480px) {
+  :root { --hero-fs: 32px; }
+}
+
+@media (min-width: 600px) {
+  :root {
+    --pad-x: 20px;
+    --hero-pad: 22px 20px 18px;
+    --card-pad: 18px 16px 12px;
+    --kpi-pad: 16px 14px;
+    --hero-fs: 36px;
+    --header-h: 58px;
+  }
+}
+
+@media (min-width: 860px) {
+  :root {
+    --pad-x: 36px;
+    --hero-pad: 24px 24px 20px;
+    --card-pad: 20px 18px 12px;
+    --hero-fs: 40px;
+  }
+}
+
+@media (min-width: 1280px) {
+  :root {
+    --pad-x: 52px;
+    --hero-fs: 44px;
+  }
+}
+
+/* ─── Layout classes ────────────────────────────────────── */
+.app-container {
+  padding: 14px var(--pad-x) 52px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+@media (min-width: 600px) {
+  .app-container { padding: 20px var(--pad-x) 64px; gap: 14px; }
+}
+
+@media (min-width: 860px) {
+  .app-container { padding: 28px var(--pad-x) 72px; }
+}
+
+/* KPI grid — 2 cols mobile, 3 cols 600px+ */
+.kpi-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+/* On very small screens the 3rd card spans both columns */
+@media (max-width: 479px) {
+  .kpi-row > :last-child { grid-column: span 2; }
+}
+
+@media (min-width: 600px) {
+  .kpi-row { grid-template-columns: repeat(3, 1fr); }
+}
+
+/* Bottom grid — stacked on mobile, side-by-side on desktop */
+.bottom-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+@media (min-width: 860px) {
+  .bottom-grid {
+    display: grid;
+    grid-template-columns: 1fr 380px;
+    align-items: start;
+    gap: 14px;
+  }
+}
+
+@media (min-width: 1280px) {
+  .bottom-grid { grid-template-columns: 1fr 420px; }
+}
+
+/* Arc gauge — full-width row on mobile so it centers under the amount */
+.hero-gauge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+@media (max-width: 599px) {
+  .hero-gauge { width: 100%; padding: 4px 0 0; }
+  .gauge-svg  { width: 170px; height: 128px; }
+}
+
+/* Chart height — taller on desktop */
+.chart-wrap { width: 100%; height: 210px; }
+
+@media (min-width: 600px)  { .chart-wrap { height: 240px; } }
+@media (min-width: 860px)  { .chart-wrap { height: 300px; } }
+
+/* Month list — limit height + scroll on desktop so it matches chart card */
+@media (min-width: 860px) {
+  .month-list-scroll {
+    max-height: 420px;
+    overflow-y: auto;
+    margin: 0 -4px;
+    padding: 0 4px;
+  }
+}
+
+/* Card header wraps on very small screens */
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ─── Base styles ───────────────────────────────────────── */
+html, body {
+  background: var(--bg);
+  color: var(--text-1);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+  transition: background 0.22s ease, color 0.22s ease;
+}
+
+#root {
+  min-height: 100vh;
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+  text-align: left;
+  border-inline: none;
+}
+
+button { font-family: inherit; cursor: pointer; border: none; background: none; }
+input  { font-family: inherit; }
+
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(128, 128, 128, 0.18); border-radius: 2px; }
