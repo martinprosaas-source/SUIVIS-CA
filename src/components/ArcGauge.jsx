@@ -45,8 +45,9 @@ export default function ArcGauge({ percent }) {
   const color = animated >= 80 ? 'var(--green)' : animated >= 40 ? 'var(--warning)' : 'var(--red)';
   const tip = polarToCartesian(filledEnd);
 
+  const h = size * 0.92;
   return (
-    <svg className="gauge-svg" width={size} height={size * 0.75} viewBox={`0 0 ${size} ${size * 0.75}`} style={{ overflow: 'visible' }}>
+    <svg className="gauge-svg" width={size} height={h} viewBox={`0 0 ${size} ${h}`}>
       <path
         d={describeArc(startAngle, endAngle)}
         fill="none"

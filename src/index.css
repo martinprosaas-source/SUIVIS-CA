@@ -163,7 +163,7 @@
 
 @media (max-width: 599px) {
   .hero-gauge { width: 100%; padding: 4px 0 0; }
-  .gauge-svg  { width: 170px; height: 128px; }
+  .gauge-svg  { width: 170px; height: 157px; }
 }
 
 /* Chart height — taller on desktop */
