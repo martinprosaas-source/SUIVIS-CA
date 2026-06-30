@@ -452,7 +452,7 @@ const s = {
   hero: {
     background: 'var(--card)',
     border: '1px solid var(--border)',
-    boxShadow: 'var(--card-shadow)',
+    boxShadow: 'var(--card-shadow), var(--card-shine)',
     borderRadius: '20px',
     padding: 'var(--hero-pad)',
     display: 'flex', alignItems: 'center', justifyContent: 'space-between',
@@ -479,7 +479,7 @@ const s = {
   kpiCard: {
     background: 'var(--card)',
     border: '1px solid var(--border)',
-    boxShadow: 'var(--card-shadow)',
+    boxShadow: 'var(--card-shadow), var(--card-shine)',
     borderRadius: '16px',
     padding: 'var(--kpi-pad)',
     display: 'flex', flexDirection: 'column', gap: '3px',
@@ -502,7 +502,7 @@ const s = {
   card: {
     background: 'var(--card)',
     border: '1px solid var(--border)',
-    boxShadow: 'var(--card-shadow)',
+    boxShadow: 'var(--card-shadow), var(--card-shine)',
     borderRadius: '20px',
     padding: 'var(--card-pad)',
     display: 'flex', flexDirection: 'column', gap: '12px',
