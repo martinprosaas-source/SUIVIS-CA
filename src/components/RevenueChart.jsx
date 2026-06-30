@@ -77,6 +77,8 @@ export default function RevenueChart({ data, monthlyGoal, colors = FALLBACK }) {
           <Tooltip
             content={<CustomTooltip colors={colors} />}
             cursor={{ stroke: colors.cursor, strokeWidth: 1 }}
+            wrapperStyle={{ pointerEvents: 'none', zIndex: 10 }}
+            allowEscapeViewBox={{ x: false, y: true }}
           />
           <Area
             type="monotone"
@@ -86,6 +88,7 @@ export default function RevenueChart({ data, monthlyGoal, colors = FALLBACK }) {
             fill="url(#caGradient)"
             dot={false}
             activeDot={{ r: 4, fill: colors.accent, stroke: colors.dotStroke, strokeWidth: 2 }}
+            isAnimationActive={false}
           />
           <Line
             type="monotone"
@@ -95,6 +98,7 @@ export default function RevenueChart({ data, monthlyGoal, colors = FALLBACK }) {
             strokeDasharray="5 4"
             dot={false}
             activeDot={false}
+            isAnimationActive={false}
           />
         </ComposedChart>
       </ResponsiveContainer>

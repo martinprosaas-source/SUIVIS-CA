@@ -173,7 +173,18 @@
 }
 
 /* Chart height — taller on desktop */
-.chart-wrap { width: 100%; height: 210px; }
+.chart-wrap {
+  width: 100%; height: 210px;
+  /* Mobile: let recharts capture all touch events for smooth scrubbing */
+  touch-action: none;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* Remove blue focus outline on chart SVG / canvas */
+.chart-wrap *:focus { outline: none; }
+.chart-wrap svg { outline: none; display: block; }
 
 @media (min-width: 600px)  { .chart-wrap { height: 240px; } }
 @media (min-width: 860px)  { .chart-wrap { height: 300px; } }
