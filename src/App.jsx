@@ -115,15 +115,13 @@ export default function App() {
       const key = `${d.getFullYear()}-${d.getMonth()}`;
       map[key] = (map[key] || 0) + e.amount;
     });
-    const result = [];
-    for (let i = 12; i >= 0; i--) {
-      const d = new Date(currentYear, currentMonth - i, 1);
-      const y = d.getFullYear();
-      const m = d.getMonth();
-      result.push({ year: y, month: m, ca: map[`${y}-${m}`] || 0 });
-    }
-    return result;
-  }, [entries, currentYear, currentMonth]);
+    // Fixed Jan–Dec of current year
+    return Array.from({ length: 12 }, (_, m) => ({
+      year: currentYear,
+      month: m,
+      ca: map[`${currentYear}-${m}`] || 0,
+    }));
+  }, [entries, currentYear]);
 
   const annualCA = useMemo(() =>
     entries.filter(e => new Date(e.date).getFullYear() === currentYear)
@@ -152,7 +150,7 @@ export default function App() {
     });
   }, [monthlyData, currentYear, currentMonth]);
 
-  const chartData = monthlyData.slice(1);
+  const chartData = monthlyData;
   const chartColors = isDark ? DARK_COLORS : LIGHT_COLORS;
 
   const progressColor = (pct) =>
