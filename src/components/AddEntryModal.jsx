@@ -1,27 +1,37 @@
 import { useState } from 'react';
 import { X } from 'lucide-react';
 
-function currentYearMonth() {
+const MONTHS = [
+  'Janvier','Février','Mars','Avril','Mai','Juin',
+  'Juillet','Août','Septembre','Octobre','Novembre','Décembre',
+];
+
+function initForm() {
   const now = new Date();
-  const y = now.getFullYear();
-  const m = String(now.getMonth() + 1).padStart(2, '0');
-  return `${y}-${m}`;
+  return {
+    amount: '',
+    note: '',
+    month: String(now.getMonth() + 1).padStart(2, '0'),
+    year:  String(now.getFullYear()),
+  };
 }
 
 export default function AddEntryModal({ onAdd, onClose }) {
-  const [form, setForm] = useState({ amount: '', note: '', month: currentYearMonth() });
+  const [form, setForm] = useState(initForm);
   const [error, setError] = useState('');
+
+  const currentYear = new Date().getFullYear();
+  const years = [currentYear - 1, currentYear, currentYear + 1];
 
   function handleSubmit(e) {
     e.preventDefault();
     const amount = parseFloat(form.amount);
     if (!amount || amount <= 0) { setError('Montant invalide'); return; }
-    if (!form.month) { setError('Mois requis'); return; }
     onAdd({
-      id: `entry-${Date.now()}`,
+      id:     `entry-${Date.now()}`,
       amount,
-      note: form.note.trim() || 'Entrée',
-      date: `${form.month}-15`,
+      note:   form.note.trim() || 'Entrée',
+      date:   `${form.year}-${form.month}-15`,
     });
     onClose();
   }
@@ -29,7 +39,6 @@ export default function AddEntryModal({ onAdd, onClose }) {
   return (
     <div className="modal-overlay" onClick={e => e.target === e.currentTarget && onClose()}>
       <div className="modal-card">
-        {/* Drag handle — visible on mobile only */}
         <div className="modal-handle" style={s.handle} />
 
         <div style={s.header}>
@@ -38,6 +47,7 @@ export default function AddEntryModal({ onAdd, onClose }) {
         </div>
 
         <form onSubmit={handleSubmit} style={s.form}>
+          {/* Montant */}
           <div style={s.field}>
             <label style={s.label}>Montant (€)</label>
             <input
@@ -50,16 +60,36 @@ export default function AddEntryModal({ onAdd, onClose }) {
             {error && <span style={s.error}>{error}</span>}
           </div>
 
+          {/* Mois + Année */}
           <div style={s.field}>
-            <label style={s.label}>Mois</label>
-            <input
-              style={{ ...s.input, colorScheme: 'dark', textAlign: 'left' }}
-              type="month"
-              value={form.month}
-              onChange={e => setForm(f => ({ ...f, month: e.target.value }))}
-            />
+            <label style={s.label}>Période</label>
+            <div style={s.selectRow}>
+              <div style={s.selectWrap}>
+                <select
+                  style={s.select}
+                  value={form.month}
+                  onChange={e => setForm(f => ({ ...f, month: e.target.value }))}
+                >
+                  {MONTHS.map((name, i) => (
+                    <option key={i} value={String(i + 1).padStart(2, '0')}>{name}</option>
+                  ))}
+                </select>
+                <span style={s.chevron}>›</span>
+              </div>
+              <div style={{ ...s.selectWrap, flex: '0 0 100px' }}>
+                <select
+                  style={s.select}
+                  value={form.year}
+                  onChange={e => setForm(f => ({ ...f, year: e.target.value }))}
+                >
+                  {years.map(y => <option key={y} value={String(y)}>{y}</option>)}
+                </select>
+                <span style={s.chevron}>›</span>
+              </div>
+            </div>
           </div>
 
+          {/* Note */}
           <div style={s.field}>
             <label style={s.label}>Note</label>
             <input
@@ -107,6 +137,32 @@ const s = {
     fontSize: '16px',
     outline: 'none',
     width: '100%',
+  },
+  selectRow: { display: 'flex', gap: '10px' },
+  selectWrap: {
+    position: 'relative',
+    flex: 1,
+    display: 'flex',
+    alignItems: 'center',
+  },
+  select: {
+    background: 'var(--input-bg)',
+    border: '1px solid var(--input-border)',
+    borderRadius: '12px',
+    padding: '13px 36px 13px 14px',
+    color: 'var(--text-1)',
+    fontSize: '16px',
+    outline: 'none',
+    width: '100%',
+    appearance: 'none',
+    WebkitAppearance: 'none',
+    cursor: 'pointer',
+  },
+  chevron: {
+    position: 'absolute', right: '12px',
+    color: 'var(--text-3)', fontSize: '18px',
+    pointerEvents: 'none', transform: 'rotate(90deg)',
+    lineHeight: 1,
   },
   error: { fontSize: '12px', color: 'var(--red)' },
   submit: {
