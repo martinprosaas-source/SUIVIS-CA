@@ -103,18 +103,18 @@
 
 /* ─── Layout classes ────────────────────────────────────── */
 .app-container {
-  padding: 14px var(--pad-x) 52px;
+  padding: 14px var(--pad-x) calc(52px + env(safe-area-inset-bottom, 0px));
   display: flex;
   flex-direction: column;
   gap: 12px;
 }
 
 @media (min-width: 600px) {
-  .app-container { padding: 20px var(--pad-x) 64px; gap: 14px; }
+  .app-container { padding: 20px var(--pad-x) calc(64px + env(safe-area-inset-bottom, 0px)); gap: 14px; }
 }
 
 @media (min-width: 860px) {
-  .app-container { padding: 28px var(--pad-x) 72px; }
+  .app-container { padding: 28px var(--pad-x) calc(72px + env(safe-area-inset-bottom, 0px)); }
 }
 
 /* KPI grid — 2 cols mobile, 3 cols 600px+ */
@@ -202,7 +202,10 @@ html, body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   -webkit-font-smoothing: antialiased;
   min-height: 100vh;
+  min-height: 100dvh;
   transition: background 0.22s ease, color 0.22s ease;
+  /* PWA: prevent overscroll bounce showing white flash */
+  overscroll-behavior: none;
 }
 
 #root {
